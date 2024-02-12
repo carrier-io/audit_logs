@@ -2,6 +2,7 @@ from tools import db
 
 
 def init_db():
-    from plugins.audit_logs import models
-    db.Base.metadata.create_all(bind=db.engine)
+    from ..models.logs import Log, RelatedEntity
+
+    db.get_shared_metadata().create_all(bind=db.engine)
 
