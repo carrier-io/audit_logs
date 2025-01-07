@@ -21,6 +21,7 @@ from pylon.core.tools import web, log  # pylint: disable=E0611,E0401
 from tools import db
 from ..models import Log, RelatedEntity
 from ..serializers.log import log_schama
+from datetime import datetime
 
 
 class Event:  # pylint: disable=E1101,R0903
@@ -32,12 +33,15 @@ class Event:  # pylint: disable=E1101,R0903
     def _add_log(self, context, event, payload):
         related_entities = payload.pop('related_entities')
         related_entities = tuple() if related_entities is None else related_entities
-        
+        log.info(related_entities)
         entities = []
         for data in related_entities:
             entities.append(RelatedEntity(**data))
         audit_log = Log(**payload)
         audit_log.related_entities = entities
+        if not audit_log.created_at:
+            audit_log.created_at = datetime.utcnow()
+        audit_log.updated_at = datetime.utcnow()
 
         db.session.add(audit_log)
         db.session.commit()
